@@ -1,5 +1,7 @@
 # Task Tracker
 
+[![CI](https://github.com/Iskhakov-06/kanban-task-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Iskhakov-06/kanban-task-tracker/actions/workflows/ci.yml)
+
 A Trello-style kanban board: create boards, organize work into columns, drag tasks between them, and collaborate with teammates. Full-stack app with a REST API, JWT authentication and role-based access control.
 
 <!-- Add a screenshot or GIF here: -->
@@ -15,6 +17,7 @@ A Trello-style kanban board: create boards, organize work into columns, drag tas
 - **Validation** of all incoming data (express-validator), centralized error handling
 - **Structured logging** (winston) and request logging
 - **Versioned database migrations** (umzug), applied automatically on startup
+- **Automated tests** (Jest + Supertest, 120+ tests against a real MySQL) and a **GitHub Actions** CI pipeline
 - **Docker Compose** setup for MySQL + API
 
 ## Tech stack
@@ -104,6 +107,21 @@ npm run migrate:status   # show applied / pending
 
 To change the schema, add a new file such as `src/migrations/20261001000000-add-labels.js` exporting `up({ context: queryInterface })` and `down(...)`. Files run in filename order; never edit a migration that has already been applied.
 
+## Testing
+
+Integration tests (Jest + Supertest) run the real Express app against a real MySQL database. They cover authentication (registration, email verification, login, refresh-token rotation, logout, password reset), role-based access control (global and per-board roles), isolation between boards, and the board / column / task / comment logic.
+
+```bash
+cd backend
+cp .env.test.example .env.test   # DB credentials; the database name must end with "_test"
+docker compose up -d db          # from the repo root, or use any local MySQL 8
+npm test                         # or: npm run test:coverage
+```
+
+The test database is created and migrated automatically. The test runner refuses to start if the database name does not end with `_test`, because tests wipe all tables. Outgoing email is mocked.
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request: backend tests on a MySQL service container, the frontend build, and a build of both Docker images.
+
 ## API overview
 
 | Area | Endpoints |
@@ -121,6 +139,8 @@ To change the schema, add a new file such as `src/migrations/20261001000000-add-
 .
 ├── backend
 │   ├── src
+│   │   ├── app.js        # Express app (exported, used by tests)
+│   │   ├── server.js     # entry point: DB connection, migrations, listen
 │   │   ├── config        # database, logger, mailer
 │   │   ├── controllers   # request handlers
 │   │   ├── middleware    # auth, RBAC, validation, error handling
@@ -130,6 +150,7 @@ To change the schema, add a new file such as `src/migrations/20261001000000-add-
 │   │   ├── services      # business logic
 │   │   ├── utils
 │   │   └── validators
+│   ├── tests             # Jest + Supertest integration tests
 │   └── Dockerfile
 ├── frontend
 │   ├── Dockerfile
@@ -140,6 +161,7 @@ To change the schema, add a new file such as `src/migrations/20261001000000-add-
 │       ├── pages
 │       ├── router
 │       └── store         # Redux Toolkit slices
+├── .github/workflows     # CI pipeline
 ├── docker-compose.yml
 └── .env.example
 ```
@@ -147,8 +169,8 @@ To change the schema, add a new file such as `src/migrations/20261001000000-add-
 ## Roadmap
 
 - [ ] Real-time updates (WebSockets)
-- [ ] Automated tests and CI
-- [ ] Task attachments, labels and due dates
+- [ ] Frontend tests
+- [ ] Task attachments and labels
 
 ## License
 
