@@ -141,7 +141,8 @@ const refresh = async (req, res) => {
 
     if (new Date() > stored.expires_at) {
       await stored.update({ is_revoked: true }, { transaction: t });
-      throw new AppError('Токен обновления истёк', 401, 'TOKEN_EXPIRED');
+      // Ошибку бросаем уже после коммита: throw внутри транзакции откатил бы и отзыв токена
+      return { expired: true };
     }
 
     // Отзываем старый токен
@@ -164,6 +165,8 @@ const refresh = async (req, res) => {
 
     return { accessToken, newRefreshToken, user };
   });
+
+  if (result.expired) throw new AppError('Токен обновления истёк', 401, 'TOKEN_EXPIRED');
 
   // Устанавливаем cookie уже после успешной транзакции
   res.cookie('refreshToken', result.newRefreshToken, {

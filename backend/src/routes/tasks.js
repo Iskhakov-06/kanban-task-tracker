@@ -7,12 +7,21 @@ const validate = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
 const { requireBoardRole } = require('../middleware/rbac');
 const {
+  columnInBoard, taskInBoard, commentInTask, targetColumnInBoard,
+} = require('../middleware/resourceScope');
+const {
   createTaskValidator, updateTaskValidator, moveTaskValidator,
   addCommentValidator, taskListValidator,
 } = require('../validators/taskValidator');
 
 router.use(authenticate);
 router.use(requireBoardRole()); // Все роуты задач требуют участия в доске
+router.use(columnInBoard);      // ...и колонка из URL должна принадлежать этой доске
+
+// Задача и комментарий из URL должны принадлежать этой доске / этой задаче.
+// (router.param срабатывает после authenticate и requireBoardRole: сначала 401/403, потом 404)
+router.param('taskId', taskInBoard);
+router.param('commentId', commentInTask);
 
 // GET  .../tasks                  — список задач (с пагинацией и фильтрами)
 router.get('/',
@@ -38,6 +47,7 @@ router.put('/:taskId',
 // PATCH .../tasks/:taskId/move     — переместить задачу (любой участник)
 router.patch('/:taskId/move',
   moveTaskValidator, validate,
+  targetColumnInBoard,       // нельзя переносить задачу в колонку другой доски
   ctrl.moveTask
 );
 

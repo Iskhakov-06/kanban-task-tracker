@@ -124,6 +124,7 @@ const removeMember = async (req, res) => {
 
   // Нельзя удалить владельца доски
   const board = await Board.findByPk(boardId, { attributes: ['owner_id'] });
+  if (!board) throw new AppError('Доска не найдена', 404, 'NOT_FOUND');
   if (board.owner_id === userId) {
     throw new AppError('Нельзя удалить владельца доски', 400, 'CANNOT_REMOVE_OWNER');
   }

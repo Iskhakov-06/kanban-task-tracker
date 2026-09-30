@@ -6,6 +6,7 @@ const ctrl = require('../controllers/columnController');
 const validate = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
 const { requireBoardRole } = require('../middleware/rbac');
+const { columnInBoard } = require('../middleware/resourceScope');
 const {
   createColumnValidator, updateColumnValidator, moveColumnValidator,
 } = require('../validators/columnValidator');
@@ -28,6 +29,7 @@ router.post('/',
 // PUT  /api/boards/:boardId/columns/:columnId      — переименовать (admin доски)
 router.put('/:columnId',
   requireBoardRole('admin'),
+  columnInBoard,
   updateColumnValidator, validate,
   ctrl.updateColumn
 );
@@ -35,6 +37,7 @@ router.put('/:columnId',
 // PATCH /api/boards/:boardId/columns/:columnId/move — переместить (admin доски)
 router.patch('/:columnId/move',
   requireBoardRole('admin'),
+  columnInBoard,
   moveColumnValidator, validate,
   ctrl.moveColumn
 );
@@ -42,6 +45,7 @@ router.patch('/:columnId/move',
 // DELETE /api/boards/:boardId/columns/:columnId    — удалить (admin доски)
 router.delete('/:columnId',
   requireBoardRole('admin'),
+  columnInBoard,
   ctrl.deleteColumn
 );
 

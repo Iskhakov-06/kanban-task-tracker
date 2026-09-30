@@ -1,6 +1,7 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 /**
  * Генерирует пару access + refresh токенов
@@ -17,7 +18,12 @@ const generateTokens = (userId, role) => {
   const refreshToken = jwt.sign(
     { id: userId },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d' }
+    {
+      expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d',
+      // Уникальный id токена: без него два токена, выданных в одну секунду, совпадают
+      // и упираются в UNIQUE-индекс refresh_tokens.token (409 при входе/обновлении)
+      jwtid: crypto.randomUUID(),
+    }
   );
 
   return { accessToken, refreshToken };

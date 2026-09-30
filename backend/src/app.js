@@ -1,12 +1,7 @@
-require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
-const sequelize = require('./config/database');
-const migrator = require('./migrator');
-const logger = require('./config/logger');
 const requestLogger = require('./middleware/requestLogger');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
@@ -46,26 +41,4 @@ app.use('/api/users', userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-
-const start = async () => {
-  try {
-    await sequelize.authenticate();
-    logger.info('Соединение с базой данных установлено');
-
-    // Применяем миграции схемы (src/migrations). Отключить: AUTO_MIGRATE=false
-    if (process.env.AUTO_MIGRATE !== 'false') {
-      await migrator.up();
-      logger.info('Схема базы данных актуальна');
-    }
-
-    app.listen(PORT, () => {
-      logger.info(`Сервер стартанул на ${PORT} [${process.env.NODE_ENV}]`);
-    });
-  } catch (err) {
-    logger.error('Не удалось запустить сервер:', err);
-    process.exit(1);
-  }
-};
-
-start();
+module.exports = app;
