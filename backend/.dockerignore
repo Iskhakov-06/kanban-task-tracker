@@ -1,0 +1,20 @@
+node_modules
+npm-debug.log*
+
+# secrets and runtime data must never end up in an image
+.env
+.env.*
+logs
+*.log
+
+# not needed inside the image
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose*.yml
+schema.sql
+*.md
+.vscode
+.idea
+.DS_Store
