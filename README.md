@@ -35,8 +35,8 @@ A Trello-style kanban board: create boards, organize work into columns, drag tas
 ### 1. Clone
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone [https://github.com/<your-username>/<repo-name>.git](https://github.com/Iskhakov-06/kanban-task-tracker.git)
+cd kanban-task-tracker
 ```
 
 ### 2. Configure
