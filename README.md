@@ -4,8 +4,8 @@
 
 A Trello-style kanban board: create boards, organize work into columns, drag tasks between them, and collaborate with teammates. Full-stack app with a REST API, JWT authentication and role-based access control.
 
-<!-- Add a screenshot or GIF here: -->
-<!-- ![Board view](docs/screenshots/board.png) -->
+![Demo](docs/screenshots/demo.gif)
+![Board view](docs/screenshots/board.png)
 
 ## Features
 
